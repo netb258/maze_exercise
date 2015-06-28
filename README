@@ -1,0 +1,10 @@
+These are my attempts to solve an interesting programming exercise.
+
+The exercise is to write a program that traverses a maze and gets all paths in the maze.
+Also, the program needs to print the shortest path in the maze.
+
+The first attempt is maze.rb, which is in pure Ruby. While programming, it became evident that immutable data structures would really help with the task.
+
+This lead to maze.clj, which is the same program written in Clojure (and using Clojure's immutable data structures).
+
+The third attempt is the maze_hm.rb file. This program uses Ruby's Hamster gem to provide immutable data structures.
