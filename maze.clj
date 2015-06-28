@@ -87,11 +87,11 @@
 
 (defn walk_maze
   [the_maze floor position steps]
-    (if (found_exit? the_maze floor position) (def paths (cons (cons ["EXIT" floor position] steps) paths)) )
-    (if (can_go_right? the_maze floor position) (go_right the_maze floor position steps) )
-    (if (can_go_up? the_maze floor position) (go_up the_maze floor position steps) )
-    (if (can_go_left? the_maze floor position) (go_left the_maze floor position steps) )
-    (if (can_go_down? the_maze floor position) (go_down the_maze floor position steps)) )
+    (if (found_exit? the_maze floor position) (def paths (cons (cons ["EXIT" floor position] steps) paths)))
+    (if (can_go_right? the_maze floor position) (go_right the_maze floor position steps))
+    (if (can_go_up? the_maze floor position) (go_up the_maze floor position steps))
+    (if (can_go_left? the_maze floor position) (go_left the_maze floor position steps))
+    (if (can_go_down? the_maze floor position) (go_down the_maze floor position steps)))
 
 (def start_floor (get_start_floor maze 0))
 (def start_pos (get_start_position (maze start_floor)))
