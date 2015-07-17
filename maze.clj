@@ -1,11 +1,12 @@
-(def maze (vector ["x" "x" "x" "x" "x" "x"]
-["0" "x" "0" "0" "0" "x"]
-["x" "*" "0" "x" "0" "x"]
-["x" "x" "x" "x" "0" "x"]
-["0" "0" "0" "0" "0" "x"]
-["0" "x" "x" "x" "0" "x"]))
+(def maze
+  (vector
+    ["x" "x" "x" "x" "x" "x"]
+    ["0" "x" "0" "0" "0" "x"]
+    ["x" "*" "0" "x" "0" "x"]
+    ["x" "x" "x" "x" "0" "x"]
+    ["0" "0" "0" "0" "0" "x"]
+    ["0" "x" "x" "x" "0" "x"]))
 
-(def paths (quote ()))
 (declare walk_maze the_maze floor position steps)
 
 (defn get_start_position
@@ -17,7 +18,7 @@
   "Checks the maze matrix and gets the array which contains the start position marker(*)."
   [the_maze index]
   (cond (empty? the_maze) -1
-    (= (get_start_position (first the_maze)) -1) (get_start_floor (rest the_maze) (inc index))
+        (= (get_start_position (first the_maze)) -1) (get_start_floor (rest the_maze) (inc index))
         :else index))
 
 (defn found_exit?
@@ -26,8 +27,7 @@
   ;If we have reached the most east, west, north or south side of the maze, then we are at the exit.
   (or
     (or (= 0 floor) (= floor (dec (count the_maze))))
-    (or (= 0 position) (= position (dec (count (the_maze floor)))))
-    ))
+    (or (= 0 position) (= position (dec (count (the_maze floor)))))))
 
 (defn can_go_right?
   [the_maze floor position]
@@ -54,49 +54,59 @@
     (= "0" (get (the_maze (inc floor)) position))))
 
 (defn go_right
-  [the_maze floor position steps]
+  [the_maze floor position steps paths]
   (walk_maze
     (assoc the_maze floor (assoc (the_maze floor) position "m"))
     floor
     (inc position)
-    (cons ["MOVING" floor position] steps)))
+    (cons ["MOVING" floor position] steps)
+    paths))
 
 (defn go_up
-  [the_maze floor position steps]
+  [the_maze floor position steps paths]
   (walk_maze
     (assoc the_maze floor (assoc (the_maze floor) position "m"))
     (dec floor)
     position
-    (cons ["MOVING" floor position] steps)))
+    (cons ["MOVING" floor position] steps)
+    paths))
 
 (defn go_left
-  [the_maze floor position steps]
+  [the_maze floor position steps paths]
   (walk_maze
     (assoc the_maze floor (assoc (the_maze floor) position "m"))
     floor
     (dec position)
-    (cons ["MOVING" floor position] steps)))
+    (cons ["MOVING" floor position] steps)
+    paths))
 
 (defn go_down
-  [the_maze floor position steps]
+  [the_maze floor position steps paths]
   (walk_maze
     (assoc the_maze floor (assoc (the_maze floor) position "m"))
     (inc floor)
     position
-    (cons ["MOVING" floor position] steps)))
+    (cons ["MOVING" floor position] steps)
+    paths))
 
 (defn walk_maze
-  [the_maze floor position steps]
-    (if (found_exit? the_maze floor position) (def paths (cons (cons ["EXIT" floor position] steps) paths)))
-    (if (can_go_right? the_maze floor position) (go_right the_maze floor position steps))
-    (if (can_go_up? the_maze floor position) (go_up the_maze floor position steps))
-    (if (can_go_left? the_maze floor position) (go_left the_maze floor position steps))
-    (if (can_go_down? the_maze floor position) (go_down the_maze floor position steps)))
+  [the_maze floor position steps paths]
+  (if (found_exit? the_maze floor position) (conj! paths (cons ["EXIT" floor position] steps))) 
+  (if (can_go_right? the_maze floor position) (go_right the_maze floor position steps paths))
+  (if (can_go_up? the_maze floor position) (go_up the_maze floor position steps paths))
+  (if (can_go_left? the_maze floor position) (go_left the_maze floor position steps paths))
+  (if (can_go_down? the_maze floor position) (go_down the_maze floor position steps paths))
+  paths)
 
 (def start_floor (get_start_floor maze 0))
 (def start_pos (get_start_position (maze start_floor)))
 
-(walk_maze maze start_floor start_pos '())
-(def paths (sort (fn [x y] (< (count x) (count y))) paths))
-(println (str "The shortest path in the maze is: " (count (first paths)) " steps long."))
-(println (str "The path is " (first paths)))
+;Notice: We are passing a mutable vector as the "paths" argument (which also get's returned).
+;But, since we are calling persistent!, it is once again chenged to an immutable data structure.
+(def paths (persistent! (walk_maze maze start_floor start_pos '() (transient []))))
+
+;Sorting the paths by number of steps:
+(def sorted_paths (sort (fn [x y] (< (count x) (count y))) paths))
+
+(println (str "The shortest path in the maze is: " (count (first sorted_paths)) " steps long."))
+(println (str "The path is " (first sorted_paths)))
