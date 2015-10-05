@@ -44,32 +44,53 @@ def can_go_down?(the_maze, floor, position)
   (floor + 1 < the_maze.size) and (the_maze[floor + 1][position] == "0") 
 end
 
-#Traverses the maze recursively and returns all possible paths as arrays of steps.
-#The steps are saved as arrays, each having 2 elements: the first is the current row, and second is the current column.
-#Note that the last two arguments (steps and paths) should be left at default when the user calls the function.
-def walk_maze(the_maze, floor, position, steps=Hamster.vector, paths=[]) 
-  if found_exit(the_maze, floor, position)
-    #When we have found an exit, we add the steps array in paths.
-    paths.unshift(steps.push([floor, position]))
-  end
+def go_right(the_maze, floor, position, steps, paths)
   if can_go_right?(the_maze, floor, position)
     the_maze = the_maze.set(floor, the_maze[floor].set(position, "m"))
     walk_maze(the_maze, floor, position + 1, steps.push([floor, position]), paths)
+  else
+    return paths
   end
+end
+
+def go_up(the_maze, floor, position, steps, paths)
   if can_go_up?(the_maze, floor, position)
     the_maze = the_maze.set(floor, the_maze[floor].set(position, "m"))
     walk_maze(the_maze, floor - 1, position, steps.push([floor, position]), paths)
+  else
+    return paths
   end
+end
+
+def go_left(the_maze, floor, position, steps, paths)
   if can_go_left?(the_maze, floor, position)
     the_maze = the_maze.set(floor, the_maze[floor].set(position, "m"))
     walk_maze(the_maze, floor, position - 1, steps.push([floor, position]), paths)
+  else
+    return paths
   end
+end
+
+def go_down(the_maze, floor, position, steps, paths)
   if can_go_down?(the_maze, floor, position)
     the_maze = the_maze.set(floor, the_maze[floor].set(position, "m"))
     walk_maze(the_maze, floor + 1, position, steps.push([floor, position]), paths)
+  else
+    return paths
+  end
+end
+
+#Traverses the maze recursively and returns all possible paths as arrays of steps.
+#The steps are saved as arrays, each having 2 elements: the first is the current row, and second is the current column.
+#Note that the last two arguments (steps and paths) should be left at default when the user calls the function.
+def walk_maze(the_maze, floor, position, steps=Hamster.vector, paths=Hamster.vector) 
+  if found_exit(the_maze, floor, position)
+    #When we have found an exit, we add the steps array in paths.
+    return paths.unshift(steps.push([floor, position]))
   end
 
-  return paths
+  go_right(the_maze, floor, position, steps, paths) + go_up(the_maze, floor, position, steps, paths) +
+  go_left(the_maze, floor, position, steps, paths)  + go_down(the_maze, floor, position, steps, paths)
 end 
 
 #Get our start position.
