@@ -105,7 +105,7 @@ end
 start_floor = get_start_floor(maze) 
 start_position = get_start_position(maze[start_floor]) 
 
-#Walk the maze from the start position. This should enumerate all paths in $paths.
+#Recursively walk the maze from the start position. This should return all paths as a vector of vectors.
 paths = walk_maze(maze, start_floor, start_position)
 
 #Find the shortest path.
