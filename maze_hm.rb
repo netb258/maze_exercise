@@ -48,57 +48,58 @@ def can_go_down?(the_maze, floor, position)
 end
 
 #We go right by increasing our position by 1. Also, mark where we stepped with "m" (prevents going back and forth endlessly).
-def go_right(the_maze, floor, position, steps, paths)
+def go_right(the_maze, floor, position, steps)
   if can_go_right?(the_maze, floor, position)
     the_maze = the_maze.set(floor, the_maze[floor].set(position, "m"))
-    walk_maze(the_maze, floor, position + 1, steps.push([floor, position]), paths)
+    walk_maze(the_maze, floor, position + 1, steps.push([floor, position]))
   else
-    return paths
+    return Hamster.vector
   end
 end
 
 #We go up by decreasing our floor by 1 (the highest floor is 0).
 #Also, mark where we stepped with "m" (prevents going back and forth endlessly).
-def go_up(the_maze, floor, position, steps, paths)
+def go_up(the_maze, floor, position, steps)
   if can_go_up?(the_maze, floor, position)
     the_maze = the_maze.set(floor, the_maze[floor].set(position, "m"))
-    walk_maze(the_maze, floor - 1, position, steps.push([floor, position]), paths)
+    walk_maze(the_maze, floor - 1, position, steps.push([floor, position]))
   else
-    return paths
+    return Hamster.vector
   end
 end
 
 #We go left by decreasing our position by 1. Also, mark where we stepped with "m" (prevents going back and forth endlessly).
-def go_left(the_maze, floor, position, steps, paths)
+def go_left(the_maze, floor, position, steps)
   if can_go_left?(the_maze, floor, position)
     the_maze = the_maze.set(floor, the_maze[floor].set(position, "m"))
-    walk_maze(the_maze, floor, position - 1, steps.push([floor, position]), paths)
+    walk_maze(the_maze, floor, position - 1, steps.push([floor, position]))
   else
-    return paths
+    return Hamster.vector
   end
 end
 
 #We go down by increasing our floor by 1. Also, mark where we stepped with "m" (prevents going back and forth endlessly).
-def go_down(the_maze, floor, position, steps, paths)
+def go_down(the_maze, floor, position, steps)
   if can_go_down?(the_maze, floor, position)
     the_maze = the_maze.set(floor, the_maze[floor].set(position, "m"))
-    walk_maze(the_maze, floor + 1, position, steps.push([floor, position]), paths)
+    walk_maze(the_maze, floor + 1, position, steps.push([floor, position]))
   else
-    return paths
+    return Hamster.vector
   end
 end
 
 #Traverses the maze recursively and returns all possible paths as arrays of steps.
-#The steps are saved as arrays, each having 2 elements: the first is the current row, and second is the current column.
-#Note that the last two arguments (steps and paths) should be left at default when the user calls walk_maze.
-def walk_maze(the_maze, floor, position, steps=Hamster.vector, paths=Hamster.vector) 
+#The steps are also saved as arrays, each having 2 elements: the first is the current row, and second is the current column.
+#Note that the last argument (steps) should be left at default when the user calls walk_maze.
+def walk_maze(the_maze, floor, position, steps=Hamster.vector) 
   if found_exit?(the_maze, floor, position)
-    #When we have found an exit, we add the steps array in paths.
-    return paths.unshift(steps.push([floor, position]))
+    #When we have found an exit, we wrap the steps vector in another vector and return it.
+    #This extra wrapping will ensure that each path is in it's own vector when we do the concatenation below.
+    return Hamster.vector.unshift(steps.push([floor, position]))
   end
 
-  go_right(the_maze, floor, position, steps, paths) + go_up(the_maze, floor, position, steps, paths) +
-  go_left(the_maze, floor, position, steps, paths)  + go_down(the_maze, floor, position, steps, paths)
+  go_right(the_maze, floor, position, steps) + go_up(the_maze, floor, position, steps) +
+  go_left(the_maze, floor, position, steps)  + go_down(the_maze, floor, position, steps)
 end 
 
 #Get our start position.
