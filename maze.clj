@@ -8,7 +8,11 @@
     ["0" "0" "0" "0" "0" "x"]
     ["0" "x" "x" "x" "0" "x"]))
 
+;This function will walk the maze, with the help of other little functions.
 (declare walk-maze the-maze floor position steps)
+
+;-------------------------------------------------------------------------------------------------------------------
+;----------------------------------- Functions to find starting position in maze -----------------------------------
 
 (defn get-start-position
   "Checks a floor vector and returns the index of the start marker(*), if it can be found and -1 otherwise."
@@ -21,6 +25,9 @@
   (cond (empty? the-maze) -1
         (= (get-start-position (first the-maze)) -1) (get-start-floor (rest the-maze) (inc index))
         :else index))
+
+;-------------------------------------------------------------------------------------------------------------------
+;----------------------------------- Functions to check where we can move in maze ----------------------------------
 
 (defn found-exit?
   "Returns true if we are at the exit of the maze (false otherwise)."
@@ -57,6 +64,9 @@
   (and
     (< (inc floor) (count the-maze))
     (= "0" (get (the-maze (inc floor)) position))))
+
+;-------------------------------------------------------------------------------------------------------------------
+;-------------------------------------- Functions to actually move in the maze -------------------------------------
 
 ;We go right by increasing our position by 1. Also, mark where we stepped with "m" (prevents going back and forth endlessly).
 (defn go-right
@@ -103,12 +113,15 @@
           (cons [floor position] steps))
         :else '()))
 
+;-------------------------------------------------------------------------------------------------------------------
+;--------------------------------------------- MAIN PART OF THE PROGRAM --------------------------------------------
+
 ;Traverses the maze recursively and returns all possible paths as lists of steps.
 ;The steps are saved as vectors, each having 2 elements: the first is the current row, and second is the current column.
 (defn walk-maze
   [the-maze floor position steps]
   (cond
-    (found-exit? the-maze floor position) (list (cons [floor position] steps)) 
+    (found-exit? the-maze floor position) (list (cons [floor position] steps))
     :else (concat
             (go-right the-maze floor position steps)
             (go-up the-maze floor position steps)
@@ -118,6 +131,7 @@
 (def start-floor (get-start-floor maze 0))
 (def start-pos (get-start-position (maze start-floor)))
 (def paths (walk-maze maze start-floor start-pos '()))
+
 ;Sorting the paths by number of steps:
 (def sorted-paths (sort (fn [x y] (< (count x) (count y))) paths))
 
