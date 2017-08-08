@@ -13,6 +13,7 @@
 
 ;; -------------------------------------------------------------------------------------------------------------------
 ;; ----------------------------------- Functions to find starting position in maze -----------------------------------
+;; -------------------------------------------------------------------------------------------------------------------
 
 (defn get-start-position
   "Checks a floor vector and returns the index of the start marker(*), if it can be found and -1 otherwise."
@@ -30,6 +31,7 @@
 
 ;; -------------------------------------------------------------------------------------------------------------------
 ;; ----------------------------------- Functions to check where we can move in maze ----------------------------------
+;; -------------------------------------------------------------------------------------------------------------------
 
 (defn found-exit?
   "Returns true if we are at the exit of the maze (false otherwise)."
@@ -69,16 +71,17 @@
 
 ;; -------------------------------------------------------------------------------------------------------------------
 ;; -------------------------------------- Functions to actually move in the maze -------------------------------------
+;; -------------------------------------------------------------------------------------------------------------------
 
 ;; We go right by increasing our position by 1. Also, mark where we stepped with "m" (prevents going back and forth endlessly).
 (defn go-right
   [the-maze floor position steps]
   (cond (can-go-right? the-maze floor position)
-        (walk-maze
-          (assoc the-maze floor (assoc (the-maze floor) position "m"))
-          floor
-          (inc position)
-          (cons [floor position] steps))
+        #(walk-maze
+           (assoc the-maze floor (assoc (the-maze floor) position "m"))
+           floor
+           (inc position)
+           (cons [floor position] steps))
         :else '()))
 
 ;; We go up by decreasing our floor by 1 (the highest floor is 0).
@@ -86,37 +89,38 @@
 (defn go-up
   [the-maze floor position steps]
   (cond (can-go-up? the-maze floor position)
-        (walk-maze
-          (assoc the-maze floor (assoc (the-maze floor) position "m"))
-          (dec floor)
-          position
-          (cons [floor position] steps))
+        #(walk-maze
+           (assoc the-maze floor (assoc (the-maze floor) position "m"))
+           (dec floor)
+           position
+           (cons [floor position] steps))
         :else '()))
 
 ;; We go left by decreasing our position by 1. Also, mark where we stepped with "m" (prevents going back and forth endlessly).
 (defn go-left
   [the-maze floor position steps]
   (cond (can-go-left? the-maze floor position)
-        (walk-maze
-          (assoc the-maze floor (assoc (the-maze floor) position "m"))
-          floor
-          (dec position)
-          (cons [floor position] steps))
+        #(walk-maze
+           (assoc the-maze floor (assoc (the-maze floor) position "m"))
+           floor
+           (dec position)
+           (cons [floor position] steps))
         :else '()))
 
 ;; We go down by increasing our floor by 1. Also, mark where we stepped with "m" (prevents going back and forth endlessly).
 (defn go-down
   [the-maze floor position steps]
   (cond (can-go-down? the-maze floor position)
-        (walk-maze
-          (assoc the-maze floor (assoc (the-maze floor) position "m"))
-          (inc floor)
-          position
-          (cons [floor position] steps))
+        #(walk-maze
+           (assoc the-maze floor (assoc (the-maze floor) position "m"))
+           (inc floor)
+           position
+           (cons [floor position] steps))
         :else '()))
 
 ;; -------------------------------------------------------------------------------------------------------------------
 ;; --------------------------------------------- MAIN PART OF THE PROGRAM --------------------------------------------
+;; -------------------------------------------------------------------------------------------------------------------
 
 ;; Traverses the maze recursively and returns all possible paths as lists of steps.
 ;; The steps are saved as vectors, each having 2 elements: the first is the current row, and second is the current column.
@@ -126,10 +130,10 @@
    (cond
      (found-exit? the-maze floor position) (list (cons [floor position] steps))
      :else (concat
-             (go-right the-maze floor position steps)
-             (go-up the-maze floor position steps)
-             (go-left the-maze floor position steps)
-             (go-down the-maze floor position steps)))))
+             (trampoline go-right the-maze floor position steps)
+             (trampoline go-up the-maze floor position steps)
+             (trampoline go-left the-maze floor position steps)
+             (trampoline go-down the-maze floor position steps)))))
 
 (defn reverse-steps
   "Reverses the order of the steps in each path (passed with the 'paths' parameter)."
